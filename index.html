@@ -3011,7 +3011,8 @@
     var change = (editor.tab.hasAttribute("data-editor-refresh") && Editor.settings.get("automatic-refresh") != false);
     if (!change && !force) return;
     var baseURL = Editor.settings.get("preview-base") || null, source = editor.textarea.value;
-    if (baseURL) source = `<!-- Document Base URL appended by Smart Text Editor -->\n<base href="${baseURL}">\n\n${source}`;
+    if (baseURL) source = source.replace(/(<!DOCTYPE.*(\[[\s\S]*?\])?>)/,`$1\n<!-- Document Base URL appended by Smart Text Editor -->\n<base href="${baseURL}">\n`);
+    //console.clear();console.log(source);
     preview.addEventListener("load",() => {
       preview.contentWindow.document.open();
       preview.contentWindow.document.write(source);
