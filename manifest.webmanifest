@@ -1,7 +1,7 @@
 {
-  "name": "Smart Text Editor",
-  "short_name": "Text Editor",
-  "description": "The text editor that requires only a browser and a keyboard!",
+  "name": "Smart Text Editor JP",
+  "short_name": "Text Editor JP",
+  "description": "a text editor wihci can read SJIS text files",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -62,88 +62,6 @@
     }
   ],
   "shortcuts": [
-    {
-      "name": "HTML Template",
-      "short_name": "HTML Template",
-      "description": "Create a new file with boilerplate HTML to start with",
-      "url": "./?template=true",
-      "icons": [
-        {
-          "src": "resources/template-192.png",
-          "type": "image/png",
-          "sizes": "192x192"
-        },
-        {
-          "src": "resources/template-512.png",
-          "type": "image/png",
-          "sizes": "512x512"
-        },
-        {
-          "src": "resources/template-1024.png",
-          "type": "image/png",
-          "sizes": "1024x1024"
-        },
-        {
-          "src": "resources/template-maskable-192.png",
-          "type": "image/png",
-          "sizes": "192x192",
-          "purpose": "maskable"
-        },
-        {
-          "src": "resources/template-maskable-512.png",
-          "type": "image/png",
-          "sizes": "512x512",
-          "purpose": "maskable"
-        },
-        {
-          "src": "resources/template-maskable-1024.png",
-          "type": "image/png",
-          "sizes": "1024x1024",
-          "purpose": "maskable"
-        }
-      ]
-    },
-    {
-      "name": "Settings",
-      "short_name": "Settings",
-      "description": "Open settings for Smart Text Editor",
-      "url": "./?settings=true",
-      "icons": [
-        {
-          "src": "resources/settings-192.png",
-          "type": "image/png",
-          "sizes": "192x192"
-        },
-        {
-          "src": "resources/settings-512.png",
-          "type": "image/png",
-          "sizes": "512x512"
-        },
-        {
-          "src": "resources/settings-1024.png",
-          "type": "image/png",
-          "sizes": "1024x1024"
-        },
-        {
-          "src": "resources/settings-maskable-192.png",
-          "type": "image/png",
-          "sizes": "192x192",
-          "purpose": "maskable"
-        },
-        {
-          "src": "resources/settings-maskable-512.png",
-          "type": "image/png",
-          "sizes": "512x512",
-          "purpose": "maskable"
-        },
-        {
-          "src": "resources/settings-maskable-1024.png",
-          "type": "image/png",
-          "sizes": "1024x1024",
-          "purpose": "maskable"
-        }
-      ]
-    }
   ],
   "file_handlers": [
     {
