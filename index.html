@@ -7,19 +7,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="author" content="Brandon Bennett">
-<meta name="description" content="Smart Text Editor is a vanilla JavaScript PWA that allows you to work on your coding projects from any device, in any browser, even if you don't have Internet access.">
-<meta name="google-site-verification" content="_LrfHy7pIualH1TolkQ5b3Po0dtjYrx-QQsiXelwx20">
-<meta property="og:title" content="Smart Text Editor">
-<meta property="og:description" content="The text editor that requires only a browser and a keyboard!">
-<meta property="og:image" content="https://stedit.app/resources/share-1200.png">
-<meta property="og:url" content="https://stedit.app">
-<meta name="twitter:card" content="summary_large_image">
+<meta name="description" content="SJISを読めるようにしたテキストエディターです。">
 <meta id="theme_color" name="theme-color" content="#1e1e1e">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Text Editor">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <base href="." target="_blank">
-<link rel="canonical" href="https://stedit.app">
 <link rel="manifest">
 <link rel="icon" type="image/svg+xml" href="resources/icon.svg">
 <link rel="alternate icon" type="image/png" sizes="16x16" href="resources/icon-16.png">
@@ -46,15 +36,15 @@
 <link rel="apple-touch-startup-image" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="resources/startup-ipadpro3-portrait.png">
 <link rel="apple-touch-startup-image" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)" href="resources/startup-ipadpro2-landscape.png">
 <link rel="apple-touch-startup-image" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="resources/startup-ipadpro2-portrait.png">
-<link rel="preconnect" href="https://fonts.gstatic.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cousine&family=Rubik&display=swap">
-<link rel="preload" as="fetch" crossorigin href="https://offroaders123.github.io/Num-Text-Component/vanilla-layout.css">
-<link rel="preload" as="fetch" crossorigin href="https://offroaders123.github.io/Num-Text-Component/vanilla-appearance.css">
-<link rel="preload" as="fetch" crossorigin href="https://offroaders123.github.io/Num-Text-Component/vanilla-highlighting.css">
-<script src="https://offroaders123.github.io/Num-Text-Component/script.js"></script>
-<script src="https://offroaders123.github.io/Menu-Drop-Component/script.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/prism.min.js" data-manual></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-json.min.js"></script>
+<link rel="stylesheet" href="./style/fonts.css">
+<link rel="preload" as="fetch" crossorigin href="./style/vanilla-layout.css">
+<link rel="preload" as="fetch" crossorigin href="./style/vanilla-appearance.css">
+<link rel="preload" as="fetch" crossorigin href="./style/vanilla-highlighting.css">
+<script src="./lib/Num-Text-Component.js"></script>
+<script src="./lib/Menu-Drop-Component.js"></script>
+<script src="./lib/prism.min.js" data-manual></script>
+<script src="./lib/prism-json.min.js"></script>
+<script src="./lib/encoding.min.js"></script>
 
 <script>
   window.Editor = {
@@ -1052,7 +1042,7 @@
   }
   .select:where(:hover,:active,:focus-within) label, .select:where(:hover,:active,:focus-within) menu-drop::part(opener) {
     color: #ffffff;
-  }  
+  }
   .select menu-drop::part(opener) {
     padding: 2px 8px;
     min-width: 74px;
@@ -1712,7 +1702,6 @@
   <div class="app-omnibox">
     <button id="install_option" class="option" title="Install" onclick="showInstallPrompt();"><svg><use href="#install_icon"/></svg></button>
     <button class="option" title="Refresh Preview" onclick="refreshPreview({ force: true });"><svg><use href="#refresh_icon"/></svg></button>
-    <a class="option" href="https://github.com/Offroaders123/Smart-Text-Editor" title="Smart Text Editor on GitHub"><svg><use href="#github_icon"/></svg></a>
   </div>
 </header>
 
@@ -2183,9 +2172,10 @@
         if (event.data.action == "clear-site-caches-complete") cleared_cache_card.open();
         if (event.data.action == "share-target"){
           event.data.files.forEach(file => {
-            var reader = new FileReader();
-            reader.readAsText(file,"UTF-8");
-            reader.addEventListener("loadend",() => createEditor({ name: file.name, value: reader.result }));
+            // var reader = new FileReader();
+            // reader.readAsText(file,"UTF-8");
+            // reader.addEventListener("loadend",() => createEditor({ name: file.name, value: reader.result }));
+			readFileAndCreateEditorWithJPEnc(file, 0);
           });
         }
       });
@@ -2361,13 +2351,16 @@
     Array.from(event.dataTransfer.items).forEach(async (item,index) => {
       if (item.kind == "file"){
         if (!Editor.support().file_system || !("getAsFileSystemHandle")){
-          var file = item.getAsFile(), reader = new FileReader();
-          reader.readAsText(file,"UTF-8");
-          reader.addEventListener("loadend",() => createEditor({ name: file.name, value: reader.result }));
-        } else {
+        //   var file = item.getAsFile(), reader = new FileReader();
+        //   reader.readAsText(file,"UTF-8");
+        //   reader.addEventListener("loadend",() => createEditor({ name: file.name, value: reader.result }));
+			readFileAndCreateEditorWithJPEnc(file, 0);
+		} else {
           var handle = await item.getAsFileSystemHandle();
           if (handle.kind != "file") return;
-          var file = await handle.getFile(), identifier = createEditor({ name: await file.name, value: await file.text() });
+          // var file = await handle.getFile(), identifier = createEditor({ name: await file.name, value: await file.text() });
+		  var file = await handle.getFile();
+		  var identifier = createEditor({ name: await file.name, value: await getTextWithJapEncode(file) });
           Editor.file_handles[identifier] = await handle;
         }
       } else if (item.kind == "string" && index == 0 && event.dataTransfer.getData("text") != "") createEditor({ value: event.dataTransfer.getData("text") });
@@ -2456,7 +2449,9 @@
   if (Editor.support().file_handling && Editor.support().file_system){
     window.launchQueue.setConsumer(params => {
       params.files.forEach(async handle => {
-        var file = await handle.getFile(), identifier = createEditor({ name: await file.name, value: await file.text() });
+        //var file = await handle.getFile(), identifier = createEditor({ name: await file.name, value: await file.text() });
+        var file = await handle.getFile();
+		var identifier = createEditor({ name: await file.name, value: await getTextWithJapEncode(file) });
         Editor.file_handles[identifier] = await handle;
       });
       if (!Editor.environment().touch_device) Editor.query().container.focus({ preventScroll: true });
@@ -2743,9 +2738,10 @@
       input.type = "file";
       input.multiple = true;
       input.addEventListener("change",() => Array.from(input.files).forEach(file => {
-        var reader = new FileReader();
-        reader.readAsText(file,"UTF-8");
-        reader.addEventListener("loadend",() => createEditor({ name: file.name, value: reader.result }));
+        // var reader = new FileReader();
+        // reader.readAsText(file,"UTF-8");
+        // reader.addEventListener("loadend",() => createEditor({ name: file.name, value: reader.result }));
+		readFileAndCreateEditorWithJPEnc(file);
       }));
       input.click();
     } else {
@@ -2754,8 +2750,10 @@
       });
       if (!handles) return;
       handles.forEach(async handle => {
-        var file = await handle.getFile(), identifier = createEditor({ name: await file.name, value: await file.text() });
-        Editor.file_handles[identifier] = await handle;
+        //var file = await handle.getFile(), identifier = createEditor({ name: await file.name, value: await file.text() });
+        var file = await handle.getFile();
+		var identifier = createEditor({ name: await file.name, value: await getTextWithJapEncode(file) });
+		Editor.file_handles[identifier] = await handle;
       });
     }
   }
@@ -2925,6 +2923,38 @@
     scaler.style.removeProperty("--scaling-offset");
     preview.style.removeProperty("--scaling-offset");
   }
+  async function getTextWithJapEncode(file){
+		var bufText = await file.arrayBuffer();
+		var aryUInt8 = new Uint8Array(bufText);
+		var text = '';
+		if (Encoding.detect(aryUInt8, 'SJIS')){
+			text = Encoding.codeToString(Encoding.convert(aryUInt8, { to: 'UNICODE', from: 'SJIS' }));
+		}else if (Encoding.detect(aryUInt8, 'EUCJP')){
+			text = Encoding.codeToString(Encoding.convert(aryUInt8, { to: 'UNICODE', from: 'EUCJP' }));
+		}else{
+			text = await file.text();
+		}
+		return text;
+  }
+  function readFileAndCreateEditorWithJPEnc(file){
+	var reader = new FileReader();
+	reader.readAsArrayBuffer(file);
+	reader.addEventListener("loadend",function (){
+		var aryUInt8 = new Uint8Array(reader.result);
+		console.log(aryUInt8);
+
+		var text = '';
+		if (Encoding.detect(aryUInt8, 'SJIS')){
+			text = Encoding.codeToString(Encoding.convert(aryUInt8, { to: 'UNICODE', from: 'SJIS' }));
+		}else if (Encoding.detect(aryUInt8, 'EUCJP')){
+			text = Encoding.codeToString(Encoding.convert(aryUInt8, { to: 'UNICODE', from: 'EUCJP' }));
+		}else{
+			text = new TextDecoder().decode(aryUInt8);
+		}
+		createEditor({ name: file.name, value: text });
+	});
+  }
+
 </script>
 
 </body>

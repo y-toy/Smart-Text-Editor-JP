@@ -1,5 +1,5 @@
 self.Editor = {
-  version: `Smart Text Editor v${3.20}`,
+  version: `Smart Text Editor JP v${3.20}`,
   cache: true,
   environment: () => ({
     macOS_device: (/(macOS|Mac)/i.test(("userAgentData" in navigator) ? navigator.userAgentData.platform : navigator.platform) && navigator.standalone === undefined)
