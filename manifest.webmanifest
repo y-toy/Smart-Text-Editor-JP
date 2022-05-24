@@ -1,5 +1,5 @@
 {
-  "name": "Smart Text Edior JP メモ帳",
+  "name": "メモ帳",
   "short_name": "メモ帳",
   "description": "A PWA text editor wihci can read SJIS text files. A fork program from Smart Text Edior.",
   "start_url": "./",

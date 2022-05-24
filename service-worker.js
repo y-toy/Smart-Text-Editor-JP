@@ -8,7 +8,7 @@ self.Editor = {
 }
 self.addEventListener("activate",event => {
   event.waitUntil(caches.keys().then(versions => Promise.all(versions.map(cache => {
-    if (cache.startsWith("Smart Text Editor") && cache !== Editor.version) return caches.delete(cache);
+    if (cache.startsWith("Smart Text Editor JP") && cache !== Editor.version) return caches.delete(cache);
   }))));
   event.waitUntil(clients.claim());
   postMessageAllClients({ action: "service-worker-activated" });
