@@ -1620,6 +1620,7 @@
         <li onclick="openFiles();" data-shortcuts='{ "default": "Ctrl+O", "macOS": "Cmd+O" }'>開く</li>
         <!-- li onclick="window.setTimeout(renameEditor,10);" data-shortcuts='{ "default": "Ctrl+Shift+R", "macOS": "Shift+Cmd+R" }'>Rename</li-->
         <li onclick="saveFile();" data-shortcuts='{ "default": "Ctrl+S", "macOS": "Cmd+S" }'>保存する</li>
+        <li onclick="saveWithAnotherFileName();" data-shortcuts='{ "default": "Ctrl+Shift+S", "macOS": "Shift+Cmd+S" }'>名前を付けて保存する</li>
         <li>別名でダウンロード
           <ul>
             <li onclick="saveFile('txt');" data-shortcuts='{ "default": ".txt" }'>Plain Text</li>
@@ -2267,6 +2268,11 @@
       if (event.repeat) return;
       saveFile();
     }
+    if ((control || command) && shift && pressed("s")){
+      event.preventDefault();
+      if (event.repeat) return;
+      saveWithAnotherFileName();
+    }
     // if ((controlShift || controlCommand) && (pressed("1") || pressed("!"))){
     //   event.preventDefault();
     //   if (event.repeat) return;
@@ -2646,7 +2652,7 @@
       rename = `${rename}.${extension}`;
     } else if (rename.charAt(0) == ".") rename = `${base}${rename}`;
     editorName.innerText = rename;
-    previewOption.innerText = rename;
+    // previewOption.innerText = rename;
     var syntaxLanguage = Editor.query(identifier).getName("extension");
     if (syntaxLanguage in Prism.languages) container.syntaxLanguage = syntaxLanguage;
     ((Editor.settings.get("syntax-highlighting") == true) && (syntaxLanguage in Prism.languages)) ? container.syntaxHighlight.enable() : container.syntaxHighlight.disable();
@@ -2793,7 +2799,7 @@
         Editor.file_handles[identifier] = await handle;
       } else handle = Editor.file_handles[identifier];
       var stream = await Editor.file_handles[identifier].createWritable().catch(error => {
-        alert(`"${Editor.query().getName()}" could not be saved.`);
+        alert(`保存できないファイルです。 "${Editor.query().getName()}"`);
         if (error.toString().toLowerCase().includes("not allowed")) return;
       });
       if (!stream) return;
@@ -2806,6 +2812,35 @@
     if (Editor.query().tab.hasAttribute("data-editor-unsaved")) Editor.query().tab.removeAttribute("data-editor-unsaved");
     refreshPreview({ force: true });
   }
+
+  async function saveWithAnotherFileName(){
+    var identifier = Editor.active_editor;
+    if (!Editor.file_handles[identifier]){ await saveFile(); return; } // 読み込まれたファイルではない。
+    var oldHandle = Editor.file_handles[identifier];
+    var newHandle = await window.showSaveFilePicker({ suggestedName: Editor.query().getName(), startIn: Editor.file_handles[identifier] }).catch(error => {
+          if (error.message.toLowerCase().includes("abort")) return;
+        });
+    if (!newHandle){ return; }
+
+    var stream = await newHandle.createWritable().catch(error => {
+        alert(`保存できないファイルです。 "${Editor.query().getName()}"`);
+        if (error.toString().toLowerCase().includes("not allowed")) return;
+      });
+    if (!stream) return;
+    await stream.write(Editor.query().textarea.value);
+    await stream.close();
+
+    var newFile = await newHandle.getFile(), rename = await newFile.name;
+    renameEditor({ name: rename, identifier: identifier });
+
+    var { tab } = Editor.query(identifier);
+    tab.removeAttribute("data-editor-refresh");
+    tab.removeAttribute("data-editor-unsaved");
+
+    delete Editor.file_handles[identifier];
+    Editor.file_handles[identifier] = await newHandle;
+  }
+
   function createDisplay(){
     var width = window.screen.availWidth * 2/3,
       height = window.screen.availHeight * 2/3,
@@ -2946,9 +2981,10 @@
 		var bufText = await file.arrayBuffer();
 		var aryUInt8 = new Uint8Array(bufText);
 		var text = '';
-		if (Encoding.detect(aryUInt8, 'SJIS')){
+    var enc = Encoding.detect(aryUInt8);
+		if (enc == 'SJIS'){
 			text = Encoding.codeToString(Encoding.convert(aryUInt8, { to: 'UNICODE', from: 'SJIS' }));
-		}else if (Encoding.detect(aryUInt8, 'EUCJP')){
+		}else if (enc == 'EUCJP'){
 			text = Encoding.codeToString(Encoding.convert(aryUInt8, { to: 'UNICODE', from: 'EUCJP' }));
 		}else{
 			text = await file.text();
@@ -2960,12 +2996,11 @@
 	reader.readAsArrayBuffer(file);
 	reader.addEventListener("loadend",function (){
 		var aryUInt8 = new Uint8Array(reader.result);
-		console.log(aryUInt8);
-
 		var text = '';
-		if (Encoding.detect(aryUInt8, 'SJIS')){
+    var enc = Encoding.detect(aryUInt8);
+		if (enc == 'SJIS'){
 			text = Encoding.codeToString(Encoding.convert(aryUInt8, { to: 'UNICODE', from: 'SJIS' }));
-		}else if (Encoding.detect(aryUInt8, 'EUCJP')){
+		}else if (enc == 'EUCJP'){
 			text = Encoding.codeToString(Encoding.convert(aryUInt8, { to: 'UNICODE', from: 'EUCJP' }));
 		}else{
 			text = new TextDecoder().decode(aryUInt8);
